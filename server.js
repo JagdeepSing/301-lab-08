@@ -69,7 +69,7 @@ function getLocation(req, res) {
         superagent.get(mapsURL)
           //if successfully obtained API data
           .then(apiData => {
-            if (apiData.body.results.length) { 
+            if (!apiData.body.results) { 
               throw 'NO LOCATION DATA'; 
             } else {
               let location = new Location(apiData.body.results[0], req.query);
