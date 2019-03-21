@@ -72,6 +72,7 @@ function getLocation(req, res) {
             if (!apiData.body.results) { 
               throw 'NO LOCATION DATA'; 
             } else {
+              console.log(apiData.body.results[0]);
               let location = new Location(apiData.body.results[0], req.query);
               
               //inserting new data into the database
