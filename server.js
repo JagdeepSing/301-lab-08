@@ -58,10 +58,10 @@ function getLocation(req, res) {
 
   // make the query of the database
   client.query(sql, values)
-    .then(result => {
+    .then(sqlResult => {
       // check if location was found
-      if (result.rowCount > 0) {
-        res.send(result.rows[0]);
+      if (sqlResult.rowCount > 0) {
+        res.send(sqlResult.rows[0]);
       } else {
         // if not found in sql, get from API
         const mapsURL = `https://maps.googleapis.com/maps/api/geocode/json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${query}`;
@@ -75,15 +75,15 @@ function getLocation(req, res) {
               let location = new Location(apiData.body.results[0], req.query);
               
               //inserting new data into the database
-              let newSql = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES($1, $2, $3, $4) RETURNING id;`;
+              let insertSql = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES($1, $2, $3, $4) RETURNING id;`;
               let newValues = Object.values(location);
               
               // make query
-              client.query(newSql, newValues)
+              client.query(insertSql, newValues)
                 //if successfully inserted into database
-                .then(result => {
+                .then(sqlReturn => {
                   // attach returned id onto the location object
-                  location.id = result.rows[0].id;
+                  location.id = sqlReturn.rows[0].id;
                   res.send(location);
                 })
                 //if not successfully inputted into database, catch error
@@ -106,9 +106,9 @@ function getWeather(req, res) {
   let values = [locID];
 
   client.query(sql, values)
-    .then(result => {
-      if (result.rowCount > 0) {
-        res.send(result.rows);
+    .then(sqlResult => {
+      if (sqlResult.rowCount > 0) {
+        res.send(sqlResult.rows);
       } else {
         const weatherURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${req.query.data.latitude},${req.query.data.longitude}`;
 
@@ -145,22 +145,24 @@ function getMeetups(req,res) {
   let values = [locID];
 
   client.query(sql, values)
-    .then(result => {
-      if (result.rowCount > 0) {
-        res.send(result.rows);
+    .then(sqlResult => {
+      if (sqlResult.rowCount > 0) {
+        res.send(sqlResult.rows);
       } else {
         const meetup_url = `https://api.meetup.com/find/upcoming_events?lat=${req.query.data.latitude}&lon=${req.query.data.longitude}&sign=true&photo-host=public&page=20&key=${process.env.MEETUP_API_KEY}`;
 
         superagent.get(meetup_url)
-          .then (api_data => {
-            if (api_data.body.events.length === 0) {
+          .then (apiData => {
+            if (apiData.body.events.length === 0) {
               throw 'NO EVENT DATA';
             } else {
-              const events = api_data.body.events.map(event => {
+              const events = apiData.body.events.map(event => {
                 let event_info = new Event(event);
                 event_info.id = locID;
+
                 let insertSql = `INSERT INTO meetups (link, name, creation_date, host, location_id) VALUES ($1, $2, $3, $4, $5);`;
                 let values = Object.values(event_info);
+                
                 client.query(insertSql, values);
                 return event_info;
               });
