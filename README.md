@@ -117,13 +117,13 @@ Number and name of feature: #2: Meetups Route SQL Interaction
 
 - Estimate of time needed to complete: 60mins
 - Start time: 11:35 am
-- Finish time: 
-- Actual time needed to complete: 
+- Finish time: 12:30 pm
+- Actual time needed to complete: 55 mins
 
 
 Number and name of feature: #3: Add Database to Heroku Deployment
 
-- Estimate of time needed to complete: 
-- Start time:
-- Finish time:
-- Actual time needed to complete:
+- Estimate of time needed to complete: 60mins
+- Start time: 12:30 pm
+- Finish time: 2:00 pm
+- Actual time needed to complete: 40 mins, took break
