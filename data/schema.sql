@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS weathers;
 DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS meetUps;
 
 CREATE TABLE locations (
   id SERIAL PRIMARY KEY,
@@ -17,10 +18,15 @@ CREATE TABLE weathers (
   FOREIGN KEY (location_id) REFERENCES locations (id)
 );
 
--- CREATE TABLE meetups (
---   id SERIAL PRIMARY KEY,
-
--- );
+CREATE TABLE meetUps (
+  id SERIAL PRIMARY KEY,
+  link CHAR,
+  name VARCHAR(255),
+  creation_date VARCHAR(255),
+  host VARCHAR(255),
+  location_id INTEGER NOT NULL,
+  FOREIGN KEY (location_id) REFERENCES locations (id)
+);
 
 -- to link schema to our database, in repo folder
 -- "psql -f ./data/schema.sql -d city_explorer"
