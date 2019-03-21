@@ -69,10 +69,9 @@ function getLocation(req, res) {
         superagent.get(mapsURL)
           //if successfully obtained API data
           .then(apiData => {
-            if (!apiData.body.results) { 
+            if (!apiData.body.results.length) { 
               throw 'NO LOCATION DATA'; 
             } else {
-              console.log(apiData.body.results[0]);
               let location = new Location(apiData.body.results[0], req.query);
               
               //inserting new data into the database
