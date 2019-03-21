@@ -12,10 +12,11 @@ This site is being built so that we can get hands on experience with backend sys
 
 ## Getting Started
 <!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
-step 1: Download the repository
-step 2: In terminal window, enter 'npm install dotenv' and create a '.env' file containing port number and API keys.
+step 1: Clone the repository
+step 2: In terminal window, enter 'npm i' and create a '.env' file containing port number, API Keys (Darksky, google maps, meetups) and Postgres database url.
 step 3: Run nodemon and test routes (location, weather, meetups) and outputs.
 step 4: deploy to a online service like heroku if desired.
+step 5: add postgres to your online service
 
 ## Architecture
 <!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
@@ -26,7 +27,15 @@ Technologies used: JavaScript, node.js, express, dotEnv, JSON, CORS, superagent.
 
 01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
 
+03-19-2019: Application has functional location and weather route, data retrieved from APIs
+
+03-20-2019: Refactored code for location and weather route, and added a meetups route for getting local meetup events
+
+03-21-2019: Added sql database for data recieved from APIs for location, weather and meetups route. Deployed to heroku with postgresql.
+
 ## Credits and Collaborations
+
+Jagdeep Singh, Trey Herndon, Bonnie Wang, Juliann Talkington
 
 -->
 Credit should be given to CodeFellows for providing all of the frontend javascript, html, and CSS. CodeFellows also gave guidance on the creation of the backend portion.
