@@ -93,18 +93,32 @@ Number and name of feature: #4: Meetups route
 
 Number and name of feature: #1: Database Setup
 
-- Estimate of time needed to complete: 
-- Start time:
-- Finish time:
-- Actual time needed to complete:
+- Estimate of time needed to complete: 30mins
+- Start time: 9:05 am
+- Finish time: 9:25 am
+- Actual time needed to complete: 20 mins
 
 
 Number and name of feature: #2: Location Route SQL Interaction
 
-- Estimate of time needed to complete:
+- Estimate of time needed to complete: 60mins
+- Start time: 9:25 am
+- Finish time: 10:20 am
+- Actual time needed to complete: 55 mins
+
+Number and name of feature: #2: Weather Route SQL Interaction
+
+- Estimate of time needed to complete: 60mins
 - Start time:
-- Finish time:
+- Finish time: 
 - Actual time needed to complete:
+
+Number and name of feature: #2: Meetups Route SQL Interaction
+
+- Estimate of time needed to complete: 60mins
+- Start time: 
+- Finish time:
+- Actual time needed to complete: 
 
 
 Number and name of feature: #3: Add Database to Heroku Deployment

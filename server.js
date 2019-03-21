@@ -47,17 +47,8 @@ function handleError(err, res) {
 //  a. if exists: get location from DB, return to front
 //  b. else: get location from the API -> save to SQL -> return to front
 
-// THIS IS OLD CODE
-// takes search request and convert to location object
-// function getLocation(req, res) {
-//   const mapsURL = `https://maps.googleapis.com/maps/api/geocode/json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${req.query.data}`;
-//   return superagent.get(mapsURL)
-//     .then(result => {
-//       res.send(new Location(result.body.results[0], req.query));
-//     })
-//     .catch(error => handleError(error));
-// }
 
+// takes search request and convert to location object
 function getLocation(req, res) {
   let query = req.query.data;
 
@@ -79,7 +70,7 @@ function getLocation(req, res) {
           //if successfully obtained API data
           .then(apiData => {
             if (!apiData.body.results.length) { 
-              throw 'NO DATA'; 
+              throw 'NO LOCATION DATA'; 
             } else {
               let location = new Location(apiData.body.results[0], req.query);
               
@@ -111,14 +102,41 @@ function getLocation(req, res) {
 
 // returns array of daily forecasts
 function getWeather(req, res) {
-  const dark_sky_url = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${req.query.data.latitude},${req.query.data.longitude}`;
-  
-  return superagent.get(dark_sky_url)
-    .then( weatherResult => {
-      const weatherSummaries = weatherResult.body.daily.data.map((day) => {
-        return new Forecast(day);
-      });
-      res.send(weatherSummaries);
+  let locID = req.query.data.id;
+
+  let sql = "SELECT * FROM weathers WHERE location_id=$1";
+  let values = [locID];
+
+  return client.query(sql, values)
+    .then(result => {
+      if (result.rowCount > 0) {
+        res.send(result.rows[0]);
+      } else {
+        const weatherURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${req.query.data.latitude},${req.query.data.longitude}`;
+
+        return superagent.get(weatherURL)
+          .then(apiData => {
+            if (apiData.body.daily.data.length === 0) {
+              throw 'NO WEATHER DATA';
+            } else {
+              const weatherSummaries = apiData.body.daily.data.map(day => {
+                let forecast =  new Forecast(day);
+                forecast.id = locID;
+                return forecast;
+              });
+              
+              weatherSummaries.forEach(day => {
+                let insertSQL = 'INSERT INTO weathers (forecast, time, location_id) VALUES ($1, $2, $3);';
+                let newValues = Object.values(day); 
+
+                client.query(insertSQL, newValues);
+              });
+
+              res.send(weatherSummaries);
+            }
+          })
+          .catch(error => handleError(error));
+      }
     })
     .catch(error => handleError(error));
 }
