@@ -61,7 +61,7 @@ function getLocation(req, res) {
     .then(result => {
       // check if location was found
       if (result.rowCount > 0) {
-        res.send(result.rows[0]);
+        res.send(result.rows);
       } else {
         // if not found in sql, get from API
         const mapsURL = `https://maps.googleapis.com/maps/api/geocode/json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${query}`;
