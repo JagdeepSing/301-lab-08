@@ -109,15 +109,15 @@ Number and name of feature: #2: Location Route SQL Interaction
 Number and name of feature: #2: Weather Route SQL Interaction
 
 - Estimate of time needed to complete: 60mins
-- Start time:
-- Finish time: 
-- Actual time needed to complete:
+- Start time: 10:20 am
+- Finish time: 11:25 am
+- Actual time needed to complete: 65 mins
 
 Number and name of feature: #2: Meetups Route SQL Interaction
 
 - Estimate of time needed to complete: 60mins
-- Start time: 
-- Finish time:
+- Start time: 11:35 am
+- Finish time: 
 - Actual time needed to complete: 
 
 
