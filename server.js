@@ -53,7 +53,7 @@ function getLocation(req, res) {
   let query = req.query.data;
 
   // Define the search query
-  let sql = "SELECT * FROM locations WHERE search_query=$1"; // $1 represents the index of values
+  let sql = `SELECT * FROM locations WHERE search_query=$1;`; // $1 represents the index of values
   let values = [query]; // always an array
 
   // make the query of the database
@@ -104,7 +104,7 @@ function getLocation(req, res) {
 function getWeather(req, res) {
   let locID = req.query.data.id;
 
-  let sql = "SELECT * FROM weathers WHERE location_id=$1";
+  let sql = `SELECT * FROM weathers WHERE location_id=$1;`;
   let values = [locID];
 
   return client.query(sql, values)
@@ -122,14 +122,17 @@ function getWeather(req, res) {
               const weatherSummaries = apiData.body.daily.data.map(day => {
                 let forecast =  new Forecast(day);
                 forecast.id = locID;
+
+                let insertSQL = 'INSERT INTO weathers (forecast, time, location_id) VALUES ($1, $2, $3);';
+                let newValues = Object.values(forecast);
+
+                client.query(insertSQL, newValues);
+
                 return forecast;
               });
               
               weatherSummaries.forEach(day => {
-                let insertSQL = 'INSERT INTO weathers (forecast, time, location_id) VALUES ($1, $2, $3);';
-                let newValues = Object.values(day); 
-
-                client.query(insertSQL, newValues);
+                
               });
 
               res.send(weatherSummaries);
@@ -142,19 +145,52 @@ function getWeather(req, res) {
 }
 
 // Meetups function
-function getMeetups(req,res) {
-  const meetup_url = `https://api.meetup.com/find/upcoming_events?lat=${req.query.data.latitude}&lon=${req.query.data.longitude}&sign=true&photo-host=public&page=20&key=${process.env.MEETUP_API_KEY}`;
+// function getMeetups(req,res) {
+//   const meetup_url = `https://api.meetup.com/find/upcoming_events?lat=${req.query.data.latitude}&lon=${req.query.data.longitude}&sign=true&photo-host=public&page=20&key=${process.env.MEETUP_API_KEY}`;
 
-  return superagent.get(meetup_url)
+//   return superagent.get(meetup_url)
+//     .then(result => {
+//       const eventsList = result.body.events.map(event => {
+//         return new Event(event);
+//       });
+//       res.send(eventsList);
+//     })
+//     .catch(error => handleError(error));
+// }
+function getMeetups(req,res) {
+  let locID = req.query.data.id;
+
+  let sql = `SELECT * FROM meetUps WHERE location_id=$1;`;
+  let values = [locID];
+
+  client.query(sql, values)
     .then(result => {
-      const eventsList = result.body.events.map(event => {
-        return new Event(event);
-      });
-      res.send(eventsList);
+      if (result.rowCount > 0) {
+        res.send(result.rows);
+      } else {
+        const meetup_url = `https://api.meetup.com/find/upcoming_events?lat=${req.query.data.latitude}&lon=${req.query.data.longitude}&sign=true&photo-host=public&page=20&key=${process.env.MEETUP_API_KEY}`;
+
+        superagent.get(meetup_url)
+          .then (api_data => {
+            if (api_data.body.events.length === 0) {
+              throw 'NO EVENT DATA';
+            } else {
+              const events = api_data.body.events.map(event => {
+                let event_info = new Event(event);
+                event_info.id = locID;
+                let insertSql = `INSERT INTO meetUps (link, name, creation_date, host, location_id) VALUES ($1, $2, $3, $4, $5);`;
+                let values = Object.values(event_info);
+                client.query(insertSql, values);
+                return event_info;
+              });
+              res.send(events);
+            }
+          })
+          .catch(error => handleError(error));
+      }
     })
     .catch(error => handleError(error));
 }
-
 // Event object constructor
 function Event(data){
   this.link = data.link;
@@ -165,7 +201,7 @@ function Event(data){
 
 // Location object constructor
 function Location(data, query) {
-  this.search_query = query;
+  this.search_query = query.data;
   this.formatted_query = data.formatted_address;
   this.latitude = data.geometry.location.lat;
   this.longitude = data.geometry.location.lng;
