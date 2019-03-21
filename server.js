@@ -53,11 +53,11 @@ function getLocation(req, res) {
   let query = req.query.data;
 
   // Define the search query
-  let sql = `SELECT * FROM locations WHERE search_query=$1;`; // $1 represents the index of values
+  let sql = `SELECT * FROM locations WHERE search_query=$1;`;
   let values = [query]; // always an array
 
   // make the query of the database
-  return client.query(sql, values)
+  client.query(sql, values)
     .then(result => {
       // check if location was found
       if (result.rowCount > 0) {
@@ -66,7 +66,7 @@ function getLocation(req, res) {
         // if not found in sql, get from API
         const mapsURL = `https://maps.googleapis.com/maps/api/geocode/json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${query}`;
 
-        return superagent.get(mapsURL)
+        superagent.get(mapsURL)
           //if successfully obtained API data
           .then(apiData => {
             if (!apiData.body.results.length) { 
@@ -105,14 +105,14 @@ function getWeather(req, res) {
   let sql = `SELECT * FROM weathers WHERE location_id=$1;`;
   let values = [locID];
 
-  return client.query(sql, values)
+  client.query(sql, values)
     .then(result => {
       if (result.rowCount > 0) {
-        res.send(result.rows[0]);
+        res.send(result.rows);
       } else {
         const weatherURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${req.query.data.latitude},${req.query.data.longitude}`;
 
-        return superagent.get(weatherURL)
+        superagent.get(weatherURL)
           .then(apiData => {
             if (apiData.body.daily.data.length === 0) {
               throw 'NO WEATHER DATA';
@@ -128,11 +128,7 @@ function getWeather(req, res) {
 
                 return forecast;
               });
-              
-              weatherSummaries.forEach(day => {
-                
-              });
-
+              console.log(weatherSummaries);
               res.send(weatherSummaries);
             }
           })
