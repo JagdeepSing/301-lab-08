@@ -83,7 +83,6 @@ function getLocation(req, res) {
                 //if successfully inserted into database
                 .then(result => {
                   // attach returned id onto the location object
-                  console.log(result.rows[0]);
                   location.id = result.rows[0].id;
                   res.send(location);
                 })
@@ -97,7 +96,6 @@ function getLocation(req, res) {
     })
     //anything related to getting data out of the database
     .catch(error => handleError(error));
-
 }
 
 // returns array of daily forecasts
@@ -145,22 +143,10 @@ function getWeather(req, res) {
 }
 
 // Meetups function
-// function getMeetups(req,res) {
-//   const meetup_url = `https://api.meetup.com/find/upcoming_events?lat=${req.query.data.latitude}&lon=${req.query.data.longitude}&sign=true&photo-host=public&page=20&key=${process.env.MEETUP_API_KEY}`;
-
-//   return superagent.get(meetup_url)
-//     .then(result => {
-//       const eventsList = result.body.events.map(event => {
-//         return new Event(event);
-//       });
-//       res.send(eventsList);
-//     })
-//     .catch(error => handleError(error));
-// }
 function getMeetups(req,res) {
   let locID = req.query.data.id;
 
-  let sql = `SELECT * FROM meetUps WHERE location_id=$1;`;
+  let sql = `SELECT * FROM meetups WHERE location_id=$1;`;
   let values = [locID];
 
   client.query(sql, values)
@@ -178,7 +164,7 @@ function getMeetups(req,res) {
               const events = api_data.body.events.map(event => {
                 let event_info = new Event(event);
                 event_info.id = locID;
-                let insertSql = `INSERT INTO meetUps (link, name, creation_date, host, location_id) VALUES ($1, $2, $3, $4, $5);`;
+                let insertSql = `INSERT INTO meetups (link, name, creation_date, host, location_id) VALUES ($1, $2, $3, $4, $5);`;
                 let values = Object.values(event_info);
                 client.query(insertSql, values);
                 return event_info;
@@ -191,6 +177,7 @@ function getMeetups(req,res) {
     })
     .catch(error => handleError(error));
 }
+
 // Event object constructor
 function Event(data){
   this.link = data.link;
