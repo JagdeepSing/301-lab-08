@@ -76,28 +76,35 @@ function getLocation(req, res) {
         const mapsURL = `https://maps.googleapis.com/maps/api/geocode/json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${query}`;
 
         return superagent.get(mapsURL)
+          //if successfully obtained API data
           .then(apiData => {
             if (!apiData.body.results.length) { 
               throw 'NO DATA'; 
             } else {
               let location = new Location(apiData.body.results[0], req.query);
               
-              let newSql = "INSERT INTO locations (search_query, formated_query, latitude, longitude) VALUES($1, $2, $3, $4);";
+              //inserting new data into the database
+              let newSql = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES($1, $2, $3, $4) RETURNING id;`;
               let newValues = Object.values(location);
               
               // make query
               client.query(newSql, newValues)
+                //if successfully inserted into database
                 .then(result => {
                   // attach returned id onto the location object
+                  console.log(result.rows[0]);
                   location.id = result.rows[0].id;
                   res.send(location);
                 })
+                //if not successfully inputted into database, catch error
                 .catch(error => handleError(error));
             }
           })
+          //if not successfully obtained API data, catch error
           .catch(error => handleError(error));
-        }
+      }
     })
+    //anything related to getting data out of the database
     .catch(error => handleError(error));
 
 }
